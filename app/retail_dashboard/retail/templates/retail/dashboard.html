@@ -1,0 +1,139 @@
+{% extends 'retail/base.html' %}
+
+{% block title %}Dashboard - Retail System{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Dashboard</h1>
+</div>
+
+<!-- Статистика -->
+<div class="row mb-4">
+    <div class="col-md-3 mb-3">
+        <div class="card stat-card bg-primary text-white">
+            <div class="card-body">
+                <h5 class="card-title">Всего продаж</h5>
+                <h2 class="card-text">{{ total_sales }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card stat-card bg-success text-white">
+            <div class="card-body">
+                <h5 class="card-title">Общая выручка</h5>
+                <h2 class="card-text">{{ total_revenue|floatformat:2 }} ₽</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card stat-card bg-info text-white">
+            <div class="card-body">
+                <h5 class="card-title">Средняя скидка</h5>
+                <h2 class="card-text">{{ avg_discount }}%</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card stat-card bg-warning text-white">
+            <div class="card-body">
+                <h5 class="card-title">Товаров в базе</h5>
+                <h2 class="card-text">{{ top_products|length }}</h2>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- График продаж -->
+<div class="row mb-4">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5>Продажи за последние 7 дней</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="salesChart" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5>Топ товаров</h5>
+            </div>
+            <div class="card-body">
+                <div class="list-group">
+                    {% for product in top_products %}
+                    <div class="list-group-item">
+                        <h6>{{ product.наименование }}</h6>
+                        <small>Выручка: {{ product.total_revenue|floatformat:2 }} ₽</small><br>
+                        <small>Продано: {{ product.total_sold|floatformat:2 }} шт.</small>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Последние продажи -->
+<div class="card">
+    <div class="card-header">
+        <h5>Последние продажи</h5>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Дата</th>
+                        <th>Клиент</th>
+                        <th>Товар</th>
+                        <th>Количество</th>
+                        <th>Сумма</th>
+                        <th>Скидка</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for sale in recent_sales %}
+                    <tr>
+                        <td>{{ sale.дата_продажи }}</td>
+                        <td>{{ sale.номер_клиента }}</td>
+                        <td>{{ sale.id_артикулы.наименование }}</td>
+                        <td>{{ sale.количество }}</td>
+                        <td>{{ sale.сумма_со_скидкой|floatformat:2 }} ₽</td>
+                        <td><span class="badge bg-info">{{ sale.общая_скидка_процент }}%</span></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// График продаж
+const salesData = {{ daily_sales|safe }};
+const labels = salesData.map(item => item.дата_продажи);
+const revenue = salesData.map(item => parseFloat(item.total_sales || 0));
+
+const ctx = document.getElementById('salesChart').getContext('2d');
+const salesChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: labels,
+        datasets: [{
+            label: 'Выручка (₽)',
+            data: revenue,
+            borderColor: 'rgb(75, 192, 192)',
+            tension: 0.1
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+    }
+});
+</script>
+{% endblock %}

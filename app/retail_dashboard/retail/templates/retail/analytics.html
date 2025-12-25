@@ -1,0 +1,162 @@
+{% extends 'retail/base.html' %}
+
+{% block title %}Аналитика - Retail System{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Аналитика</h1>
+</div>
+
+<!-- Фильтры -->
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="btn-group" role="group">
+                    <button type="button" class="btn btn-outline-primary" onclick="loadChart('monthly')">
+                        По месяцам
+                    </button>
+                    <button type="button" class="btn btn-outline-primary" onclick="loadChart('product_groups')">
+                        По группам товаров
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- График -->
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 id="chartTitle">Продажи по месяцам</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="analyticsChart" height="300"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Статистика -->
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5>Продажи по группам товаров</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Группа</th>
+                                <th>Кол-во продаж</th>
+                                <th>Выручка</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for group in group_sales %}
+                            <tr>
+                                <td>{{ group.наименование }}</td>
+                                <td>{{ group.count_sales }}</td>
+                                <td>{{ group.total_sales|floatformat:2 }} ₽</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5>Средний чек по типам клиентов</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Тип клиента</th>
+                                <th>Кол-во продаж</th>
+                                <th>Средний чек</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for client_type in client_type_stats %}
+                            <tr>
+                                <td>{{ client_type.наименование }}</td>
+                                <td>{{ client_type.count_sales }}</td>
+                                <td>{{ client_type.avg_check|floatformat:2 }} ₽</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let analyticsChart = null;
+
+function loadChart(chartType) {
+    fetch(`/chart-data/?type=${chartType}`)
+        .then(response => response.json())
+        .then(data => {
+            const ctx = document.getElementById('analyticsChart').getContext('2d');
+            
+            if (analyticsChart) {
+                analyticsChart.destroy();
+            }
+            
+            document.getElementById('chartTitle').textContent = 
+                chartType === 'monthly' ? 'Продажи по месяцам' : 'Продажи по группам товаров';
+            
+            const chartTypeConfig = chartType === 'monthly' ? 'line' : 'bar';
+            
+            analyticsChart = new Chart(ctx, {
+                type: chartTypeConfig,
+                data: {
+                    labels: data.labels,
+                    datasets: [{
+                        label: chartType === 'monthly' ? 'Выручка (₽)' : 'Выручка по группам (₽)',
+                        data: data.values,
+                        backgroundColor: chartType === 'product_groups' ? 
+                            'rgba(54, 162, 235, 0.5)' : 'rgba(75, 192, 192, 0.2)',
+                        borderColor: chartType === 'product_groups' ? 
+                            'rgba(54, 162, 235, 1)' : 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return value.toLocaleString('ru-RU') + ' ₽';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        });
+}
+
+// Загружаем график по умолчанию
+document.addEventListener('DOMContentLoaded', function() {
+    loadChart('monthly');
+});
+</script>
+{% endblock %}

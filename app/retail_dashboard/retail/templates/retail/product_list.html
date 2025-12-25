@@ -1,0 +1,52 @@
+{% extends 'retail/base.html' %}
+
+{% block title %}Товары - Retail System{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Товары</h1>
+    <a href="{% url 'product_create' %}" class="btn btn-primary">
+        <i class="bi bi-plus-circle"></i> Добавить товар
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Артикул</th>
+                        <th>Наименование</th>
+                        <th>Группа</th>
+                        <th>Общая группа</th>
+                        <th>Действия</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for product in products %}
+                    <tr>
+                        <td>{{ product.артикул }}</td>
+                        <td>{{ product.наименование }}</td>
+                        <td>{{ product.id_группы.наименование }}</td>
+                        <td>{{ product.id_группы.id_обобщ_группа.наименование }}</td>
+                        <td>
+                            <a href="{% url 'product_edit' product.id %}" class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <a href="{% url 'product_delete' product.id %}" class="btn btn-sm btn-outline-danger">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center">Товары не найдены</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
