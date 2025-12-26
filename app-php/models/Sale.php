@@ -8,6 +8,80 @@ class Sale {
         $this->db = Database::getInstance()->getConnection();
     }
     
+    // Получить продажи с фильтрами
+    public function getFilteredSales($filters = []) {
+        $sql = "SELECT k.*, 
+                a.Наименование as артикул_наименование,
+                g.Наименование as группа_наименование,
+                og.Наименование as общая_группа_наименование,
+                e.Наименование as единица_измерения,
+                s.общая_скидка,
+                city.Город,
+                city.Федеральный_округ,
+                tc.Наименование as тип_клиента
+                FROM Клиенты k
+                JOIN Артикулы a ON k.id_артикулы = a.id
+                JOIN Группа g ON k.id_группа = g.id
+                JOIN Обощённая_группа_товаров og ON g.id_обобщ_группа = og.id
+                JOIN ед_измерения e ON k.id_ед_измерения = e.id
+                JOIN Скидки s ON k.id_скидки = s.id
+                JOIN Города city ON s.id_город = city.id
+                JOIN типы_клиентов tc ON s.id_типы_клиентов = tc.id
+                WHERE 1=1";
+        
+        $params = [];
+        
+        if (!empty($filters['start_date'])) {
+            $sql .= " AND k.Дата_продажи >= ?";
+            $params[] = $filters['start_date'];
+        }
+        
+        if (!empty($filters['end_date'])) {
+            $sql .= " AND k.Дата_продажи <= ?";
+            $params[] = $filters['end_date'];
+        }
+        
+        if (!empty($filters['client'])) {
+            $sql .= " AND k.Номер_клиента LIKE ?";
+            $params[] = '%' . $filters['client'] . '%';
+        }
+        
+        if (!empty($filters['product'])) {
+            $sql .= " AND a.Наименование LIKE ?";
+            $params[] = '%' . $filters['product'] . '%';
+        }
+        
+        if (!empty($filters['city'])) {
+            $sql .= " AND city.id = ?";
+            $params[] = $filters['city'];
+        }
+        
+        $sql .= " ORDER BY k.Дата_продажи DESC, k.created_at DESC";
+        
+        $stmt = $this->db->prepare($sql);
+        
+        if ($stmt) {
+            if (!empty($params)) {
+                $types = str_repeat('s', count($params));
+                $stmt->bind_param($types, ...$params);
+            }
+            
+            $stmt->execute();
+            $result = $stmt->get_result();
+            
+            $sales = [];
+            if ($result->num_rows > 0) {
+                while($row = $result->fetch_assoc()) {
+                    $sales[] = $row;
+                }
+            }
+            
+            $stmt->close();
+            return $sales;
+        }
+        
+        return [];
+    }
     // Получить все продажи
     public function getAllSales() {
         $sql = "SELECT k.*, 
@@ -161,4 +235,6 @@ class Sale {
         return $this->db->query($sql);
     }
 }
+
+
 ?>

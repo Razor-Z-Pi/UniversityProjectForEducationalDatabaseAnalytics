@@ -1,6 +1,6 @@
 <?php
-require_once '../includes/header.php';
-require_once '../models/Product.php';
+require_once '../../includes/header.php';
+require_once '../../models/Product.php';
 
 if (!isset($_GET['id']) || empty($_GET['id'])) {
     header('Location: index.php');
@@ -85,4 +85,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
 </div>
 
-<?php require_once '../includes/footer.php'; ?>
+<?php require_once '../../includes/footer.php'; ?>

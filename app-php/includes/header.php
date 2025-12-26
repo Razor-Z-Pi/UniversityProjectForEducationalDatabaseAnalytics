@@ -1,12 +1,17 @@
 <?php
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+require_once "functions.php";
 ?>
+
 <!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Retail Analytics System</title>
+    <title>Система анализа торговли</title>
     
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     
@@ -14,7 +19,7 @@ session_start();
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
-    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="../css/style.css">
     
     <style>
         body {
@@ -22,7 +27,7 @@ session_start();
         }
         .sidebar {
             min-height: 100vh;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #667eea 0%, #2e45c5ff 100%);
             color: white;
         }
         .sidebar .nav-link {
@@ -69,25 +74,25 @@ session_start();
             <nav class="col-md-3 col-lg-2 d-md-block sidebar">
                 <div class="position-sticky pt-3">
                     <h2 class="text-center mb-4">
-                        <i class="fas fa-chart-line"></i> Retail Analytics
+                        Панель управления
                     </h2>
                     
                     <ul class="nav flex-column">
                         <li class="nav-item">
                             <a class="nav-link <?php echo basename($_SERVER['PHP_SELF']) == 'dashboard.php' ? 'active' : ''; ?>" 
                                href="dashboard.php">
-                                <i class="fas fa-tachometer-alt"></i> Dashboard
+                                <i class="fas fa-tachometer-alt"></i> Панель:)
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'products') !== false ? 'active' : ''; ?>" 
-                               href="products/">
+                               href="views/products/index.php">
                                 <i class="fas fa-box"></i> Товары
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link <?php echo strpos($_SERVER['PHP_SELF'], 'sales') !== false ? 'active' : ''; ?>" 
-                               href="sales/">
+                               href="views/sales/index.php">
                                 <i class="fas fa-shopping-cart"></i> Продажи
                             </a>
                         </li>
@@ -101,10 +106,10 @@ session_start();
                     
                     <div class="mt-4 p-3">
                         <h6>Быстрые действия</h6>
-                        <a href="products/create.php" class="btn btn-outline-light btn-sm w-100 mb-2">
+                        <a href="views/products/create.php" class="btn btn-outline-light btn-sm w-100 mb-2">
                             <i class="fas fa-plus"></i> Новый товар
                         </a>
-                        <a href="sales/create.php" class="btn btn-outline-light btn-sm w-100">
+                        <a href="views/sales/create.php" class="btn btn-outline-light btn-sm w-100">
                             <i class="fas fa-plus"></i> Новая продажа
                         </a>
                     </div>

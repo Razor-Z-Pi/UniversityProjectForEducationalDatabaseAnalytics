@@ -1,6 +1,6 @@
 <?php
-require_once '../includes/header.php';
-require_once '../models/Product.php';
+require_once '../../includes/header.php';
+require_once '../../models/Product.php';
 
 $productModel = new Product();
 $groups = $productModel->getAllGroups();
@@ -84,4 +84,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
 </div>
 
-<?php require_once '../includes/footer.php'; ?> 
+<?php require_once '../../includes/footer.php'; ?> 

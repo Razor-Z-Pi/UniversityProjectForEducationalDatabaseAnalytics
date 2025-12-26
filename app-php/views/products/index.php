@@ -1,6 +1,6 @@
 <?php
-require_once '../includes/header.php';
-require_once '../models/Product.php';
+require_once '../../includes/header.php';
+require_once '../../models/Product.php';
 
 $productModel = new Product();
 $products = $productModel->getAllProducts();
@@ -66,11 +66,11 @@ $stats = $productModel->getProductStatistics();
                 <?php else: ?>
                 <?php foreach($products as $product): ?>
                 <tr>
-                    <td><?php echo htmlspecialchars($product['артикул']); ?></td>
-                    <td><?php echo htmlspecialchars($product['наименование']); ?></td>
+                    <td><?php echo htmlspecialchars($product['Артикул']); ?></td>
+                    <td><?php echo htmlspecialchars($product['Наименование']); ?></td>
                     <td><?php echo htmlspecialchars($product['группа']); ?></td>
                     <td><?php echo htmlspecialchars($product['общая_группа']); ?></td>
-                    <td><?php echo formatDate($product['created_at']); ?></td>
+                    <td><?php echo htmlspecialchars($product['created_at']); ?></td>
                     <td>
                         <div class="btn-group btn-group-sm">
                             <a href="edit.php?id=<?php echo $product['id']; ?>" 
@@ -92,4 +92,4 @@ $stats = $productModel->getProductStatistics();
     </div>
 </div>
 
-<?php require_once '../includes/footer.php'; ?>
+<?php require_once '../../includes/footer.php'; ?>

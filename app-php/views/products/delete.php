@@ -1,6 +1,6 @@
 <?php
-require_once '../includes/functions.php';
-require_once '../models/Product.php';
+require_once '../../includes/functions.php';
+require_once '../../models/Product.php';
 
 if (!isset($_GET['id']) || empty($_GET['id'])) {
     header('Location: index.php');
